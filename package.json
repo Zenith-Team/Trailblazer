@@ -1,0 +1,33 @@
+{
+  "type": "module",
+  "name": "trailblazer",
+  "version": "2.4.1",
+  "description": "Trailblazer Installer",
+  "main": "./dist/boot.cjs",
+  "author": "Zenith Team",
+  "license": "MIT",
+  "scripts": {
+    "watch": "npm run clean && npx tsc -w",
+    "build": "npm run clean && npx tsc && npx electron ./dist/boot.cjs",
+    "clean": "node -e \"fs.rm('dist',{recursive:true},()=>{});\"",
+    "start": "electron-forge start",
+    "test": "npx cross-env TRAILBLAZER_DEV=1 npx electronmon ./dist/boot.cjs",
+    "package": "npm run clean && npx tsc && electron-forge package",
+    "make": "electron-forge make"
+  },
+  "devDependencies": {
+    "@types/node": "^18.7.13",
+    "cross-env": "^7.0.3",
+    "electron": "^21.3.0",
+    "electronmon": "^2.0.2"
+  },
+  "electronmon": {
+    "patterns": [
+      "!src/**/*",
+      "!**/*.md"
+    ]
+  },
+  "dependencies": {
+    "tachyon": "github:Zenith-Team/Tachyon"
+  }
+}

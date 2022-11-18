@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; style-src-elem 'self' https://fonts.googleapis.com https://fonts.gstatic.com; font-src https://fonts.gstatic.com">
+
+        <!-- Externals -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,550,0,0"/>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto&display=swap">
+
+        <!-- Locals -->
+        <link rel="stylesheet" href="./style.css">
+        <script type="module" src="../dist/webscript.js" defer></script>
+    </head>
+
+    <body>
+        <div id="dragpopup" class="dragger"></div>
+        <div id="drag-file" class="dragger"></div>
+        <div id="lds-dual-ring"></div>
+        <p id="doneTxt"></p>
+        <div class="centerer drag">
+
+            <h1 id="title">Trailblazer</h1>
+            <h1 id="titleIcon"><img src="../asset/icon.png" width="33" height="33" alt="tb"></h1>
+            <br>
+        </div><br><br><br>
+        <div id="title-bar-btns">
+            <button class="no-drag titlebtn" id="btn-min"><span class="material-symbols-outlined">remove</span></button>
+            <button class="no-drag titlebtn" id="btn-close"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        <div id="other-bar-btns">
+            <button class="no-drag titlebtn" id="btn-info"><span class="material-symbols-outlined">info</span></button>
+        </div>
+
+        <div id="main">
+            <div class="ibg" style="left: 100px">
+                <p class="material-symbols-outlined">folder_open</p><br>
+                <button class="btn" id="btn-typf">
+                    <p style="font-size: large;">Select Patch</p>
+                </button>
+                <!--
+                <pre>
+                    <p class="patch-select patch-select-txt"><span class="material-symbols-outlined" style="font-size: 28px; top: 50px">draft</span>From File</p>
+
+                    <p class="patch-select patch-select-txt"><span class="material-symbols-outlined" style="font-size: 28px">link</span>From Url</p>
+                </pre>
+                -->
+
+
+                <p class="txt" id="txt-typf">typf file</p>
+                <div class="centerer">
+                    <button id="btn-change-typf" style="background-color: transparent; border: none;">
+                        <p class="fakelink">Change</p>
+                    </button>
+                </div>
+            </div>
+
+            <div class="ibg">
+                <h3 class="material-symbols-outlined">file_open</h3><br>
+                <button class="btndeactive" id="btn-rpx">
+                    <p>Select RPX</p>
+                </button>
+                <p id="txt-rpx">rpx file</p>
+                <div class="centerer">
+                    <button id="btn-change-rpx" style="background-color: transparent; border: none;">
+                        <p class="fakelink">Change</p>
+                    </button>
+                </div>
+            </div>
+
+            <div class="ibg" style="right: 100px">
+                <h3 class="material-symbols-outlined">sync_saved_locally</h3><br>
+                <button class="btndeactive" id="btn-patch">
+                    <p>Install</p>
+                </button>
+
+
+            </div>
+        </div>
+        <footer class="centerer">
+
+            <p id="version">Version 0.0.0</p>
+        </footer>
+    <br/>
+
+    </body>
+</html>
