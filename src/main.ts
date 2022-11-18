@@ -51,30 +51,22 @@ export class App {
             ipcMain.on('close-window', () => {
                 this.window!.close();
             });
-            ipcMain.on('close', () => {
-                app.relaunch();
+            ipcMain.on('close', (_evt, noRelaunch?: boolean) => {
+                if (!noRelaunch) app.relaunch();
                 app.quit();
             });
-            ipcMain.on('tachyon-init', async (e, r, p ,o) => {
-                function testDone() {
-                    if (fs.existsSync(o)) {
-                        return e.reply('tachyon-done', o);
-                    }
-                    return;
-                }
+            ipcMain.on('tachyon-init', async (evt, rpx, patch, out) => {
                 try {
                     console.log('Tachyon initialized from IPC');
-                    if (o === r) {
+                    if (out === rpx) {
                         console.error('Input RPX path cannot be the same as the output RPX path.');
                         electron.dialog.showErrorBox('Something has gone catastrophically wrong!', "Input RPX path cannot be the same as the output RPX path.");
-                        return e.reply('tachyon-error', 'Output path cannot be the same as the input path');
+                        return evt.reply('tachyon-error', 'Output path cannot be the same as the input path');
                     }
-                    if (fs.existsSync(o)) {
-                        await fs.unlinkSync(o)
-                    }
-                    let O = o.split('.').slice(0, -1).join('.');
-                    await tachyon.patch(r, p, O);
-                    setInterval(testDone, 1000);
+                    if (fs.existsSync(out)) fs.unlinkSync(out)
+                    let O = out.split('.').slice(0, -1).join('.');
+                    await tachyon.patch(rpx, patch, O);
+                    evt.reply('tachyon-done', out);
 
                     return 1;
                 } catch (err) {
@@ -84,7 +76,7 @@ export class App {
                     }
                     console.log(errorMessage);
                     electron.dialog.showErrorBox('Something has gone catastrophically wrong!', errorMessage);
-                    return e.reply('tachyon-error', errorMessage);
+                    return evt.reply('tachyon-error', errorMessage);
                 }
             })
         });

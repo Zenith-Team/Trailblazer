@@ -145,15 +145,11 @@ function patchBtn () {
         });
 
         if (!outPath) return;
-
-
-        console.log(outPath);
-
         document.getElementById("lds-dual-ring")!.style.display = "inline-block";
 
         btn.className = 'btndeactive';
 
-        await ipcRenderer.send('tachyon-init', rpxFile, patchFile, outPath);
+        ipcRenderer.send('tachyon-init', rpxFile, patchFile, outPath);
 
         ipcRenderer.once('tachyon-done', (e) => {
             let txt: HTMLElement = document.getElementById('doneTxt')!;
@@ -163,11 +159,7 @@ function patchBtn () {
             resetAll()
 
             outPath = null;
-            console.log('done');
-            setInterval(() => {
-                ipcRenderer.send('close');
-            }, 1000);
-
+            setTimeout(() => ipcRenderer.send('close', true), 1000);
         });
         ipcRenderer.once('tachyon-error', (e, err) => {
             document.getElementById("lds-dual-ring")!.style.display = "none";
