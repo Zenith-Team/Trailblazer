@@ -30,9 +30,6 @@ export class App {
 
         app.whenReady().then(() => {
             this.createMainWindow();
-            ipcMain.on('patch', () => {
-                // TODO: add token logger here
-            })
             app.on('activate', () => {
                 if (!BrowserWindow.getAllWindows().length) this.createMainWindow();
             });
