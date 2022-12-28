@@ -130,9 +130,10 @@ function resetAll () {
 function patchBtn () {
     const btn: HTMLElement = document.getElementById('btn-patch')!;
     btn.className = 'btn';
+    let done1 = false;
 
     btn.addEventListener('click', async () => {
-
+        if (done1) return;
         outPath = await app.showSaveDialog({
             title: 'Select output RPX location',
             buttonLabel: 'Save',
@@ -143,13 +144,13 @@ function patchBtn () {
                 { name: 'All Files', extensions: ['*'] }
             ]
         });
-
+        done1 = false;
         if (!outPath) return;
         document.getElementById("lds-dual-ring")!.style.display = "inline-block";
 
         btn.className = 'btndeactive';
 
-        ipcRenderer.send('tachyon-init', rpxFile, patchFile, outPath);
+        ipcRenderer.send('tachyon-init', rpxFile, patchFile, outPath, false);
 
         ipcRenderer.once('tachyon-done', (e) => {
             let txt: HTMLElement = document.getElementById('doneTxt')!;
@@ -165,11 +166,11 @@ function patchBtn () {
             document.getElementById("lds-dual-ring")!.style.display = "none";
             let txt: HTMLElement = document.getElementById('doneTxt')!;
             txt.style.display = "block";
-            txt.innerText = 'Error';
+            txt.innerText = 'Error, please relaunch';
             resetAll()
             setInterval(() => {
-                ipcRenderer.send('close');
-            }, 1000);
+                ipcRenderer.send('close', true);
+            }, 2000);
             outPath = null;
         });
     });

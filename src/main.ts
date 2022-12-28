@@ -20,7 +20,7 @@ import fs from 'fs';
 // @ts-expect-error no-types-provided
 import tachyon from 'tachyon';
 
-
+import variants from './gamevariants.json' assert { type: 'json' };
 
 export class App {
     constructor(electron: typeof Electron) {
@@ -55,28 +55,37 @@ export class App {
                 if (!noRelaunch) app.relaunch();
                 app.quit();
             });
-            ipcMain.on('tachyon-init', async (evt, rpx, patch, out) => {
+            ipcMain.on('tachyon-init', async (event, rpxPath, patchPath, outPath, hashCheck?: boolean) => {
                 try {
                     console.log('Tachyon initialized from IPC');
-                    if (out === rpx) {
+                    if (outPath === rpxPath) {
                         console.error('Input RPX path cannot be the same as the output RPX path.');
                         electron.dialog.showErrorBox('Something has gone catastrophically wrong!', "Input RPX path cannot be the same as the output RPX path.");
-                        return evt.reply('tachyon-error', 'Output path cannot be the same as the input path');
+                        return event.reply('tachyon-error', 'Output path cannot be the same as the input path');
                     }
-                    if (fs.existsSync(out)) fs.unlinkSync(out)
-                    let O = out.split('.').slice(0, -1).join('.');
-                    await tachyon.patch(rpx, patch, O);
-                    evt.reply('tachyon-done', out);
-
+                    if (fs.existsSync(outPath)) fs.unlinkSync(outPath)
+                    let outPathNoExt = outPath.split('.').slice(0, -1).join('.');
+                    await tachyon.patch(rpxPath, patchPath, outPathNoExt);
+                    event.reply('tachyon-done', outPath);
                     return 1;
                 } catch (err) {
-                    let errorMessage: string = 'Please contact support.';
+                    let errorMessage: string = 'Please contact support linked on the Trailblazer website.';
                     if (err instanceof Error) {
                         errorMessage = err.message;
                     }
                     console.log(errorMessage);
-                    electron.dialog.showErrorBox('Something has gone catastrophically wrong!', errorMessage);
-                    return evt.reply('tachyon-error', errorMessage);
+                    let step = 0;
+                    for (const variant of variants.ids) {
+                        if (errorMessage.includes(variant)) {
+                            // @ts-ignore type-mismatch
+                            errorMessage = errorMessage.replace(variant, variants.names[step]);
+                            return step++;
+                        }
+
+                    }
+                    let userInfo = `\n\nPlease join our discord for support: nsmbu.net/discord`;
+                    electron.dialog.showErrorBox('Something has gone catastrophically wrong!', errorMessage + userInfo);
+                    return event.reply('tachyon-error', errorMessage);
                 }
             })
         });

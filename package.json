@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "trailblazer",
-  "version": "2.4.2",
+  "version": "2.5.0",
   "description": "Trailblazer",
   "main": "./dist/boot.cjs",
   "author": "Zenith Team",
