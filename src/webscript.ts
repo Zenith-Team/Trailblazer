@@ -154,13 +154,13 @@ function patchBtn () {
 
         ipcRenderer.once('tachyon-done', (e) => {
             let txt: HTMLElement = document.getElementById('doneTxt')!;
-            txt.innerText = 'Finished';
+            txt.innerText = 'Finished!';
             document.getElementById("lds-dual-ring")!.style.display = "none";
             txt.style.display = "block";
             resetAll()
 
             outPath = null;
-            setTimeout(() => ipcRenderer.send('close', true), 1000);
+            setTimeout(() => ipcRenderer.send('close', true), 2000);
         });
         ipcRenderer.once('tachyon-error', (e, err) => {
             document.getElementById("lds-dual-ring")!.style.display = "none";

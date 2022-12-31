@@ -7,7 +7,6 @@
 |_   _|| _ \  (_)_\(_)|_ _|| |   | _ )| |    (_)_\(_)|_  / | __|| _ \
   | |  |   /   / _ \   | | | |__ | _ \| |__   / _ \   / /  | _| |   /
   |_|  |_|_\  /_/ \_\ |___||____||___/|____| /_/ \_\ /___| |___||_|_\
-
     Zenith team 2022
     Thanks Jh for Tachyon <3
  */
@@ -79,9 +78,9 @@ export class App {
                         if (errorMessage.includes(variant)) {
                             // @ts-ignore type-mismatch
                             errorMessage = errorMessage.replace(variant, variants.names[step]);
-                            return step++;
+                            console.log('Checking for name match' + variants.names[step]);
                         }
-
+                        step++;
                     }
                     let userInfo = `\n\nPlease join our discord for support: nsmbu.net/discord`;
                     electron.dialog.showErrorBox('Something has gone catastrophically wrong!', errorMessage + userInfo);
@@ -133,4 +132,3 @@ export class App {
     protected window: Electron.BrowserWindow | null = null;
     protected readonly electron: typeof Electron;
 }
-
