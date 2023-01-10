@@ -16,7 +16,7 @@ npm i -D
 npm run make
 ```
 
-### Running
+### Development
 ```sh
 # Run this on a separate terminal from your main one
 # Keep it running in the background
