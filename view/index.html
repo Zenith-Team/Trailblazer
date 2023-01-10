@@ -18,7 +18,19 @@
     <body>
         <div id="dragpopup" class="dragger"></div>
         <div id="drag-file" class="dragger"></div>
-        <div id="lds-dual-ring"></div>
+        <!-- Begin the spinner, thanks to Abraham Samma on codepen-->
+        <div id="container">
+            <svg viewBox="0 0 100 100">
+                <defs>
+                    <filter id="shadow">
+                        <feDropShadow dx="0" dy="0" stdDeviation="1.5"
+                                      flood-color="#fc6767"/>
+                    </filter>
+                </defs>
+                <circle id="spinner" style="fill:transparent;stroke:#dd2476;stroke-width: 7px;stroke-linecap: round;filter:url(#shadow);" cx="50" cy="50" r="45"/>
+            </svg>
+        </div>
+        <!-- End the spinner -->
         <p id="doneTxt"></p>
         <div class="centerer drag">
 

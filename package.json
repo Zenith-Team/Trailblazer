@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "trailblazer",
-  "version": "2.5.1",
+  "version": "2.6.0",
   "description": "Trailblazer",
   "main": "./dist/boot.cjs",
   "author": "Zenith Team",
@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "electron-squirrel-startup": "^1.0.0",
+    "node-fetch": "^3.3.0",
     "tachyon": "github:Zenith-Team/Tachyon"
   },
   "build": {
@@ -59,7 +60,9 @@
         },
         {
           "name": "@electron-forge/maker-zip",
-          "platforms": ["darwin"]
+          "platforms": [
+            "darwin"
+          ]
         },
         {
           "name": "@electron-forge/maker-deb",

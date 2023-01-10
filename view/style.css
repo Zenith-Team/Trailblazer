@@ -4,6 +4,10 @@ body {
     overflow-y: hidden;
 }
 
+img {
+    pointer-events: none;
+}
+
 * {
     user-select: none;
     -webkit-user-select: none;
@@ -265,7 +269,7 @@ footer p {
     border-radius: 50%;
     border: 6px solid #fff;
     border-color: #fff transparent #fff transparent;
-    animation: lds-dual-ring 1.2s linear infinite;
+    animation: lds-dual-ring 0.9s linear infinite;
     display:block;
 }
 @keyframes lds-dual-ring {
@@ -278,21 +282,51 @@ footer p {
 }
 
 #doneTxt {
-
-
     font-size: xx-large;
     display: none;
-
     left: 0;
     bottom: 80%;
     right: 5px;
     align-content: center;
     text-align: center;
     pointer-events: none;
+}
 
+/* the spinner again */
 
+#container {
+    position: absolute;
+    transform: translate(-50%,-50%);
+    width: 130px;
+    height: 130px;
+    display:none;
+    left: 50%;
+    top: 20%;
+    right: 0;
+    align-content: center;
 }
 
 
 
+@keyframes animation {
+    0% {
+        stroke-dasharray: 1 98;
+        stroke-dashoffset: -105;
+    }
+    50% {
+        stroke-dasharray: 80 10;
+        stroke-dashoffset: -160;
+    }
+    100% {
+        stroke-dasharray: 1 98;
+        stroke-dashoffset: -300;
+    }
+}
 
+#spinner {
+    transform-origin: center;
+    animation-name: animation;
+    animation-duration: 1.0s;
+    animation-timing-function: cubic-bezier(0,0,0,0);
+    animation-iteration-count: infinite;
+}

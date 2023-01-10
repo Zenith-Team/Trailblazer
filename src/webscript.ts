@@ -18,6 +18,9 @@ document.getElementById('btn-change-typf')!.style.display = 'none';
 document.getElementById('txt-rpx')!.style.display = 'none';
 document.getElementById('btn-change-rpx')!.style.display = 'none';
 
+ipcRenderer.send('check-update');
+
+
 function rpx(file: string[] | undefined) {
     if (!file) return console.log('No file selected');
 
@@ -146,7 +149,9 @@ function patchBtn () {
         });
         done1 = false;
         if (!outPath) return;
-        document.getElementById("lds-dual-ring")!.style.display = "inline-block";
+        document.getElementById("container")!.style.display = "inline-block";
+        //blur the whole page
+        document.getElementById("body")!.style.filter = "blur(5px)";
 
         btn.className = 'btndeactive';
 
@@ -155,7 +160,8 @@ function patchBtn () {
         ipcRenderer.once('tachyon-done', (e) => {
             let txt: HTMLElement = document.getElementById('doneTxt')!;
             txt.innerText = 'Finished!';
-            document.getElementById("lds-dual-ring")!.style.display = "none";
+            document.getElementById("container")!.style.display = "none";
+
             txt.style.display = "block";
             resetAll()
 
@@ -163,7 +169,7 @@ function patchBtn () {
             setTimeout(() => ipcRenderer.send('close', true), 2000);
         });
         ipcRenderer.once('tachyon-error', (e, err) => {
-            document.getElementById("lds-dual-ring")!.style.display = "none";
+            document.getElementById("container")!.style.display = "none";
             let txt: HTMLElement = document.getElementById('doneTxt')!;
             txt.style.display = "block";
             txt.innerText = 'Error, please relaunch';

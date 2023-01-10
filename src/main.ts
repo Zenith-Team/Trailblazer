@@ -15,11 +15,15 @@ import type Electron from 'electron';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs';
+import fetch from 'node-fetch';
 
 // @ts-expect-error no-types-provided
 import tachyon from 'tachyon';
 
 import variants from './gamevariants.json' assert { type: 'json' };
+// @ts-ignore external-import
+import pkg from '../package.json' assert { type: 'json' };
+
 
 export class App {
     constructor(electron: typeof Electron) {
@@ -44,6 +48,9 @@ export class App {
             ipcMain.handle('electron-static', (_event, key: keyof typeof Electron, method: string, args: any[] = []) => {
                 return (<any>this.electron[key])[method](...args);
             });
+            ipcMain.on("check-update", async (event) => {
+                checkGithubUpdate();
+            });
             ipcMain.on('minimize-window', () => {
                 this.window!.minimize();
             });
@@ -54,41 +61,70 @@ export class App {
                 if (!noRelaunch) app.relaunch();
                 app.quit();
             });
-            ipcMain.on('tachyon-init', async (event, rpxPath, patchPath, outPath, hashCheck?: boolean) => {
+            ipcMain.on('tachyon-init', async (event, rpxPath, patchPath, outPath) => {
                 try {
                     console.log('Tachyon initialized from IPC');
                     if (outPath === rpxPath) {
-                        console.error('Input RPX path cannot be the same as the output RPX path.');
-                        electron.dialog.showErrorBox('Something has gone catastrophically wrong!', "Input RPX path cannot be the same as the output RPX path.");
-                        return event.reply('tachyon-error', 'Output path cannot be the same as the input path');
+                        return new Error('Input RPX path cannot be the same as the output RPX path.')
                     }
                     if (fs.existsSync(outPath)) fs.unlinkSync(outPath)
                     let outPathNoExt = outPath.split('.').slice(0, -1).join('.');
                     await tachyon.patch(rpxPath, patchPath, outPathNoExt);
                     event.reply('tachyon-done', outPath);
                     return 1;
-                } catch (err) {
-                    let errorMessage: string = 'Please contact support linked on the Trailblazer website.';
-                    if (err instanceof Error) {
-                        errorMessage = err.message;
-                    }
-                    console.log(errorMessage);
-                    let step = 0;
-                    for (const variant of variants.ids) {
-                        if (errorMessage.includes(variant)) {
-                            // @ts-ignore type-mismatch
-                            errorMessage = errorMessage.replace(variant, variants.names[step]);
-                            console.log('Checking for name match' + variants.names[step]);
-                        }
-                        step++;
-                    }
-                    let userInfo = `\n\nPlease join our discord for support: nsmbu.net/discord`;
-                    electron.dialog.showErrorBox('Something has gone catastrophically wrong!', errorMessage + userInfo);
-                    return event.reply('tachyon-error', errorMessage);
+                } catch (error) {
+                    // @ts-ignore
+                    let handleErr = handleError(error);
+                    return event.reply('tachyon-error', handleErr);
                 }
-            })
-        });
+            });
 
+        });
+        function handleError(err: Error) {
+            console.log(err);
+            let errorMessage = err.message;
+
+            let step = 0;
+            for (const variant of variants.ids) {
+                if (errorMessage.includes(variant)) {
+                    // @ts-ignore type-mismatch
+                    errorMessage = errorMessage.replace(variant, variants.names[step]);
+                    console.log('Checking for name match' + variants.names[step]);
+                }
+                step++;
+            }
+            let userInfo = `\n\nPlease join our discord for support: nsmbu.net/discord`;
+            // @ts-ignore
+
+
+            electron.dialog.showErrorBox('Something has gone catastrophically wrong!', errorMessage + userInfo);
+            return(errorMessage);
+        }
+
+        async function checkGithubUpdate() {
+            try {
+                const response = await fetch('https://api.github.com/repos/Zenith-Team/Trailblazer/releases/latest');
+                const data: any = await response.json();
+
+                if (data.tag_name > pkg.version) {
+                    let dialog = electron.dialog.showMessageBoxSync({
+                        type: 'question',
+                        buttons: ['Yes', 'No'],
+                        title: 'Update available',
+                        message: `A new version of Trailblazer is available (${pkg.version} → ${data.tag_name}) Would you like to download it?`,
+
+                    })
+                    if (dialog === 0) {
+                        await electron.shell.openExternal(data.html_url);
+                    }
+                } else {
+                    console.log('Up to date!' + `(${pkg.version} >= ${data.tag_name})`);
+                }
+            } catch (error) {
+                // @ts-ignore
+                handleError(error);
+            }
+        }
         app.on('window-all-closed', app.quit);
     }
 
@@ -109,7 +145,7 @@ export class App {
             show: false,
             frame: process.env.TRAILBLAZER_DEV !== undefined,
             webPreferences: {
-                devTools: false,
+                devTools: true,
                 defaultEncoding: 'utf-8',
                 disableHtmlFullscreenWindowResize: true,
                 textAreasAreResizable: false,
@@ -124,7 +160,7 @@ export class App {
         });
 
         this.window.on('ready-to-show', this.window.show);
-        this.window.loadFile( '../view/index.html').catch(e => {
+        this.window.loadFile( '../view/index.html').catch(() => {
             this.window?.loadFile( './view/index.html');
         });
     }
@@ -132,3 +168,5 @@ export class App {
     protected window: Electron.BrowserWindow | null = null;
     protected readonly electron: typeof Electron;
 }
+
+
