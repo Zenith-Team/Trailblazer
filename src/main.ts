@@ -15,6 +15,7 @@ import type Electron from 'electron';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs';
+// @ts-ignore
 import fetch from 'node-fetch';
 
 // @ts-expect-error no-types-provided
@@ -143,7 +144,7 @@ export class App {
             show: false,
             frame: process.env.TRAILBLAZER_DEV !== undefined,
             webPreferences: {
-                devTools: true,
+                devTools: process.env.TRAILBLAZER_DEV !== undefined,
                 defaultEncoding: 'utf-8',
                 disableHtmlFullscreenWindowResize: true,
                 textAreasAreResizable: false,
