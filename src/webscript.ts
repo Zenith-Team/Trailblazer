@@ -20,6 +20,7 @@ document.getElementById('btn-change-rpx')!.style.display = 'none';
 
 ipcRenderer.send('check-update');
 
+const appContainer = document.getElementById('app')!;
 
 function rpx(file: string[] | undefined) {
     if (!file) return console.log('No file selected');
@@ -28,7 +29,9 @@ function rpx(file: string[] | undefined) {
 
     document.getElementById('btn-rpx')!.style.display = 'none';
     const text: HTMLElement = document.getElementById('txt-rpx')!;
+
     text.style.display = 'block';
+
     text.className = 'txt';
 
     if (!fs.existsSync(rpxFile)) {
@@ -126,15 +129,11 @@ function resetAll () {
     document.getElementById('btn-typf')!.style.display = 'block';
     document.getElementById('btn-rpx')!.className = 'btndeactive';
     document.getElementById('btn-patch')!.className = 'btndeactive';
-
-
 }
-
 function patchBtn () {
     const btn: HTMLElement = document.getElementById('btn-patch')!;
     btn.className = 'btn';
     let done1 = false;
-
     btn.addEventListener('click', async () => {
         if (done1) return;
         outPath = await app.showSaveDialog({
@@ -150,28 +149,33 @@ function patchBtn () {
         done1 = false;
         if (!outPath) return;
         document.getElementById("container")!.style.display = "inline-block";
-        //blur the whole page
-        document.getElementById("body")!.style.filter = "blur(5px)";
+        const footer = document.getElementById("version")!;
+        const infobtn = document.getElementById("btn-info")!;
+        appContainer.classList.add("blurred")
+        document.body.style.pointerEvents = "none";
+        footer.style.display = "none";infobtn.style.display = "none";
 
         btn.className = 'btndeactive';
-
         ipcRenderer.send('tachyon-init', rpxFile, patchFile, outPath, false);
-
         ipcRenderer.once('tachyon-done', (e) => {
             let txt: HTMLElement = document.getElementById('doneTxt')!;
+            appContainer.classList.remove("blurred")
+            document.body.style.pointerEvents = "auto";
             txt.innerText = 'Finished!';
             document.getElementById("container")!.style.display = "none";
-
+            footer.style.display = "block";infobtn.style.display = "block";
             txt.style.display = "block";
             resetAll()
-
             outPath = null;
             setTimeout(() => ipcRenderer.send('close', true), 2000);
         });
         ipcRenderer.once('tachyon-error', (e, err) => {
             document.getElementById("container")!.style.display = "none";
             let txt: HTMLElement = document.getElementById('doneTxt')!;
+            appContainer.classList.remove("blurred")
+            document.body.style.pointerEvents = "auto";
             txt.style.display = "block";
+            footer.style.display = "block";infobtn.style.display = "block";
             txt.innerText = 'Error, please relaunch';
             resetAll()
             setInterval(() => {

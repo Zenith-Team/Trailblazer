@@ -16,24 +16,24 @@
     </head>
 
     <body>
+    <!-- thanks to Abraham Samma on codepen.io -->
+    <div id="container">
+        <svg viewBox="0 0 100 100">
+            <defs>
+                <filter id="shadow">
+                    <feDropShadow dx="0" dy="0" stdDeviation="1.5" flood-color="#fc6767"/>
+                </filter>
+            </defs>
+            <circle id="spinner" style="fill:transparent;stroke:#dd2476;stroke-width: 7px;stroke-linecap: round;filter:url(#shadow);" cx="50" cy="50" r="45"/>
+        </svg>
+    </div>
+    <!-- end -->
+    <div id="app">
         <div id="dragpopup" class="dragger"></div>
         <div id="drag-file" class="dragger"></div>
-        <!-- Begin the spinner, thanks to Abraham Samma on codepen-->
-        <div id="container">
-            <svg viewBox="0 0 100 100">
-                <defs>
-                    <filter id="shadow">
-                        <feDropShadow dx="0" dy="0" stdDeviation="1.5"
-                                      flood-color="#fc6767"/>
-                    </filter>
-                </defs>
-                <circle id="spinner" style="fill:transparent;stroke:#dd2476;stroke-width: 7px;stroke-linecap: round;filter:url(#shadow);" cx="50" cy="50" r="45"/>
-            </svg>
-        </div>
-        <!-- End the spinner -->
+
         <p id="doneTxt"></p>
         <div class="centerer drag">
-
             <h1 id="title">Trailblazer</h1>
             <h1 id="titleIcon"><img src="../asset/icon.png" width="33" height="33" alt="tb"></h1>
             <br>
@@ -87,15 +87,12 @@
                 <button class="btndeactive" id="btn-patch">
                     <p>Install</p>
                 </button>
-
-
             </div>
         </div>
         <footer class="centerer">
-
             <p id="version">Version 0.0.0</p>
         </footer>
     <br/>
-
+    </div>
     </body>
 </html>

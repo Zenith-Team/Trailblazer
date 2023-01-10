@@ -94,9 +94,8 @@ export class App {
                 step++;
             }
             let userInfo = `\n\nPlease join our discord for support: nsmbu.net/discord`;
+
             // @ts-ignore
-
-
             electron.dialog.showErrorBox('Something has gone catastrophically wrong!', errorMessage + userInfo);
             return(errorMessage);
         }
@@ -112,13 +111,12 @@ export class App {
                         buttons: ['Yes', 'No'],
                         title: 'Update available',
                         message: `A new version of Trailblazer is available (${pkg.version} → ${data.tag_name}) Would you like to download it?`,
-
                     })
                     if (dialog === 0) {
                         await electron.shell.openExternal(data.html_url);
-                    }
+                    } else return;
                 } else {
-                    console.log('Up to date!' + `(${pkg.version} >= ${data.tag_name})`);
+                    return console.log('Up to date!' + `(${pkg.version} >= ${data.tag_name})`);
                 }
             } catch (error) {
                 // @ts-ignore
