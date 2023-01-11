@@ -1,8 +1,8 @@
 {
   "type": "module",
   "name": "trailblazer",
-  "version": "2.5.0",
-  "description": "Trailblazer",
+  "version": "2.6.0",
+  "description": "Tachyon patcher frontend",
   "main": "./dist/boot.cjs",
   "author": "Zenith Team",
   "license": "MIT",

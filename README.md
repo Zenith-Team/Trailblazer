@@ -11,15 +11,18 @@ cd Trailblazer
 npm i -D
 ```
 
-### Building
+### Building distributables
+```sh
+npm run make
+```
+
+### Development
 ```sh
 # Run this on a separate terminal from your main one
 # Keep it running in the background
 # It will continuously automatically build TS files on changes
 npm run watch
 ```
-
-### Running
 ```sh
 npm start # Production mode
 npm test # Development mode
