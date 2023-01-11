@@ -20,7 +20,11 @@ document.getElementById('btn-change-rpx')!.style.display = 'none';
 
 ipcRenderer.send('check-update');
 
+let txt: HTMLElement = document.getElementById('doneTxt')!;
+
 const appContainer = document.getElementById('app')!;
+
+const spinContainer = document.getElementById("container")!;
 
 function rpx(file: string[] | undefined) {
     if (!file) return console.log('No file selected');
@@ -148,7 +152,7 @@ function patchBtn () {
         });
         done1 = false;
         if (!outPath) return;
-        document.getElementById("container")!.style.display = "inline-block";
+        spinContainer.style.display = "inline-block";
         const footer = document.getElementById("version")!;
         const infobtn = document.getElementById("btn-info")!;
         appContainer.classList.add("blurred")
@@ -158,11 +162,11 @@ function patchBtn () {
         btn.className = 'btndeactive';
         ipcRenderer.send('tachyon-init', rpxFile, patchFile, outPath, false);
         ipcRenderer.once('tachyon-done', (e) => {
-            let txt: HTMLElement = document.getElementById('doneTxt')!;
+
             appContainer.classList.remove("blurred")
             document.body.style.pointerEvents = "auto";
             txt.innerText = 'Finished!';
-            document.getElementById("container")!.style.display = "none";
+            spinContainer.style.display = "none";
             footer.style.display = "block";infobtn.style.display = "block";
             txt.style.display = "block";
             resetAll()
@@ -170,8 +174,8 @@ function patchBtn () {
             setTimeout(() => ipcRenderer.send('close', true), 2000);
         });
         ipcRenderer.once('tachyon-error', (e, err) => {
-            document.getElementById("container")!.style.display = "none";
-            let txt: HTMLElement = document.getElementById('doneTxt')!;
+            spinContainer.style.display = "none";
+
             appContainer.classList.remove("blurred")
             document.body.style.pointerEvents = "auto";
             txt.style.display = "block";
@@ -189,8 +193,28 @@ function patchBtn () {
 document.getElementById('btn-typf')!.addEventListener('click', getTypf);
 document.getElementById('btn-change-typf')!.addEventListener('click', getTypf);
 document.getElementById('btn-change-rpx')!.addEventListener('click', getRpx);
-document.getElementById('btn-min')!.addEventListener('click', () => ipcRenderer.send('minimize-window'));
-document.getElementById('btn-close')!.addEventListener('click', () => ipcRenderer.send('close-window'));
+
+const minBtn = document.getElementById('btn-min')!;
+minBtn.addEventListener('click', () => ipcRenderer.send('minimize-window'));
+
+
+const closeBtn = document.getElementById('btn-close')!
+closeBtn.addEventListener('click', () => ipcRenderer.send('close-window'));
+
+let ctimer: any;
+closeBtn.onpointerdown = function() {
+    ctimer = setTimeout(() => {
+        txt.innerText = 'Restarting app';
+        txt.style.display = "block";
+        closeBtn.style.pointerEvents = 'none';
+        return setTimeout(() => ipcRenderer.send('close', false), 2000);
+
+    }, 3500)
+}
+closeBtn.onpointerup = function() {
+    clearTimeout(ctimer);
+}
+
 document.getElementById('version')!.innerText = `Version ${pkg.version}\nZenith Team ${new Date().getFullYear()}`;
 
 document.getElementById('btn-info')!.addEventListener('click', () => {
