@@ -1,3 +1,5 @@
+// @ts-ignore
+
 /*
         (              (    (          (                 )       (
       ) )\ )    (      )\ ) )\ )   (   )\ )    (      ( /(       )\ )
@@ -15,7 +17,7 @@ import type Electron from 'electron';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs';
-// @ts-ignore
+
 import fetch from 'node-fetch';
 
 // @ts-expect-error no-types-provided
@@ -66,15 +68,16 @@ export class App {
                 try {
                     console.log('Tachyon initialized from IPC');
                     if (outPath === rpxPath) {
-                        return new Error('Input RPX path cannot be the same as the output RPX path.')
+                        let str = 'Output path cannot be the same as the input path.';
+                        handleError(new Error(str));
+                        return event.reply('tachyon-error', str)
                     }
                     if (fs.existsSync(outPath)) fs.unlinkSync(outPath)
                     let outPathNoExt = outPath.split('.').slice(0, -1).join('.');
                     await tachyon.patch(rpxPath, patchPath, outPathNoExt);
                     event.reply('tachyon-done', outPath);
                     return 1;
-                } catch (error) {
-                    // @ts-ignore
+                } catch (error: any) {
                     let handleErr = handleError(error);
                     return event.reply('tachyon-error', handleErr);
                 }
@@ -88,7 +91,7 @@ export class App {
             let step = 0;
             for (const variant of variants.ids) {
                 if (errorMessage.includes(variant)) {
-                    // @ts-ignore type-mismatch
+                    // @ts-ignore
                     errorMessage = errorMessage.replace(variant, variants.names[step]);
                     console.log('Checking for name match' + variants.names[step]);
                 }
@@ -96,7 +99,6 @@ export class App {
             }
             let userInfo = `\n\nPlease join our discord for support: nsmbu.net/discord`;
 
-            // @ts-ignore
             electron.dialog.showErrorBox('Something has gone catastrophically wrong!', errorMessage + userInfo);
             return(errorMessage);
         }
