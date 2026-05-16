@@ -19,7 +19,7 @@
         "newLine": "lf",                                     /* Set the newline character for emitting files. */
         "noEmitOnError": true,                               /* Disable emitting files if any type checking errors are reported. */
         "preserveConstEnums": true,                          /* Disable erasing `const enum` declarations in generated code. */
-        "preserveValueImports": true,                        /* Preserve unused imported values in the JavaScript output that would otherwise be removed. */
+        "verbatimModuleSyntax": true,                        /* Ensure that imports are emitted as-is. Replaces preserveValueImports. */
 
         /* Interop Constraints */
         "allowSyntheticDefaultImports": true,                /* Allow 'import x from y' when a module doesn't have a default export. */

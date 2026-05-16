@@ -26,6 +26,9 @@
             </defs>
             <circle id="spinner" style="fill:transparent;stroke:#dd2476;stroke-width: 7px;stroke-linecap: round;filter:url(#shadow);" cx="50" cy="50" r="45"/>
         </svg>
+        <div id="live-log-view" class="hidden">
+            <div id="live-log-content"></div>
+        </div>
     </div>
     <!-- end -->
     <div id="app">
@@ -35,6 +38,7 @@
         <p id="doneTxt"></p>
         <div class="centerer drag">
             <h1 id="title">Trailblazer</h1>
+            <div id="deprecated-banner" title="Click for info">Deprecated</div>
             <h1 id="titleIcon"><img src="../asset/icon.png" width="33" height="33" alt="tb"></h1>
             <br>
         </div><br><br><br>
@@ -93,6 +97,38 @@
             <p id="version">Version 0.0.0</p>
         </footer>
     <br/>
+    </div>
+    <!-- Unified Modal Overlay -->
+    <div id="modal-overlay" class="hidden">
+        <div id="modal-box">
+            <button id="modal-close" class="hidden">X</button>
+            <h2 id="modal-title">STOP!</h2>
+            <div id="modal-body">
+                <!-- Dynamic Info Section (Custom Messages) -->
+                <div id="modal-info-text" class="hidden"></div>
+                <!-- Requirements Section (Original styles) -->
+                <!-- Requirements Section (Static Checklist) -->
+                <div id="modal-requirements" class="hidden">
+                    <p>Please check the following requirements:</p>
+                    <ul id="modal-list">
+                        <li>Your game is fully updated</li>
+                        <li>Your game is in extracted form (code/content/meta folders)</li>
+                        <li>You use the RPX from the update folder (you can right click the game in cemu)</li>
+                    </ul>
+                </div>
+                <p id="modal-support" class="hidden">Join the Zenith Discord for help: <span class="link" id="modal-link-discord">go.nsmbu.net/discord</span></p>
+                
+                
+                <!-- Log Section (Hidden by default) -->
+                <div id="modal-log-view" class="hidden">
+                    <div id="modal-log-content"></div>
+                </div>
+            </div>
+            <div id="modal-footer">
+                <button id="modal-cancel-btn" class="btn hidden">Cancel</button>
+                <button id="modal-action-btn" class="btn">OK</button>
+            </div>
+        </div>
     </div>
     </body>
 </html>

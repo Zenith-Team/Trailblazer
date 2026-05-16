@@ -20,12 +20,9 @@ import fs from 'fs';
 
 import fetch from 'node-fetch';
 
-// @ts-expect-error no-types-provided
-import tachyon from 'tachyon';
-
-import variants from './gamevariants.json' assert { type: 'json' };
+import variants from './gamevariants.json' with { type: 'json' };
 // @ts-ignore external-import
-import pkg from '../package.json' assert { type: 'json' };
+import pkg from '../package.json' with { type: 'json' };
 
 
 export class App {
@@ -60,8 +57,7 @@ export class App {
             ipcMain.on('close-window', () => {
                 this.window!.close();
             });
-            ipcMain.on('close', (_evt, noRelaunch?: boolean) => {
-                if (!noRelaunch) app.relaunch();
+            ipcMain.on('close', () => {
                 app.quit();
             });
             ipcMain.on('tachyon-init', async (event, rpxPath, patchPath, outPath) => {
@@ -74,7 +70,9 @@ export class App {
                     }
                     if (fs.existsSync(outPath)) fs.unlinkSync(outPath)
                     let outPathNoExt = outPath.split('.').slice(0, -1).join('.');
-                    await tachyon.patch(rpxPath, patchPath, outPathNoExt);
+
+                    await spawnTachyonPatch(rpxPath, patchPath, outPathNoExt, event);
+
                     event.reply('tachyon-done', outPath);
                     return 1;
                 } catch (error: any) {
@@ -83,11 +81,46 @@ export class App {
                 }
             });
 
-        });
-        function handleError(err: Error) {
-            console.log(err);
-            let errorMessage = err.message;
+            async function spawnTachyonPatch(rpxPath: string, patchPath: string, outPath: string, event: any) {
+                const { spawn } = await import('child_process');
+                
+                // Resolve the path to the tachyon CLI script
+                let cliPath = path.join(app.getAppPath(), 'node_modules', 'tachyon', 'dist', 'cli.js');
+                
+                // If we are in a packaged app, the script must be executed from the unpacked directory
+                cliPath = cliPath.replace('app.asar', 'app.asar.unpacked');
+                
+                const args = [cliPath, 'patch', rpxPath, patchPath, '--allow-hash-mismatch', '-o', outPath];
 
+                return new Promise((resolve, reject) => {
+                    // Run the CLI script using the bundled Node (Electron binary) to ensure cross-platform reliability
+                    const proc = spawn(process.execPath, args, {
+                        env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' }
+                    });
+                    let errorOutput = '';
+
+                    proc.stdout.on('data', (data) => {
+                        const str = data.toString();
+                        event.sender.send('tachyon-log', str);
+                    });
+
+                    proc.stderr.on('data', (data) => {
+                        const str = data.toString();
+                        errorOutput += str;
+                        event.sender.send('tachyon-log', str);
+                    });
+
+                    proc.on('close', (code) => {
+                        if (code === 0) resolve(true);
+                        else reject(new Error(`Tachyon failed (code ${code}): ${errorOutput}`));
+                    });
+                });
+            }
+        });
+        const handleError = (err: Error, event?: any) => {
+            console.log(err);
+            let errorMessage = err.message + "\n" + err.stack;
+ 
             let step = 0;
             for (const variant of variants.ids) {
                 if (errorMessage.includes(variant)) {
@@ -97,27 +130,35 @@ export class App {
                 }
                 step++;
             }
-            let userInfo = `\n\nPlease join our discord for support: nsmbu.net/discord`;
-
-            electron.dialog.showErrorBox('Something has gone catastrophically wrong!', errorMessage + userInfo);
+            let userInfo = `\n\nPlease join our discord for support: go.nsmbu.net/discord`;
+ 
+            if (this.window && !this.window.isDestroyed()) {
+                this.window.webContents.send('system-error', errorMessage + userInfo);
+            } else {
+                electron.dialog.showErrorBox('Something has gone wrong...', errorMessage + userInfo);
+            }
             return(errorMessage);
-        }
-
-        async function checkGithubUpdate() {
+        };
+ 
+        const checkGithubUpdate = async () => {
             try {
                 const response = await fetch('https://api.github.com/repos/Zenith-Team/Trailblazer/releases/latest');
                 const data: any = await response.json();
-
+ 
                 if (data.tag_name > pkg.version) {
-                    let dialog = electron.dialog.showMessageBoxSync({
-                        type: 'question',
-                        buttons: ['Yes', 'No'],
-                        title: 'Update available',
-                        message: `A new version of Trailblazer is available (${pkg.version} → ${data.tag_name}) Would you like to download it?`,
-                    })
-                    if (dialog === 0) {
-                        await electron.shell.openExternal(data.html_url);
-                    } else return;
+                    if (this.window && !this.window.isDestroyed()) {
+                        this.window.webContents.send('update-available', data.tag_name, data.html_url);
+                    } else {
+                        let dialog = electron.dialog.showMessageBoxSync({
+                            type: 'question',
+                            buttons: ['Yes', 'No'],
+                            title: 'Update available',
+                            message: `A new version of Trailblazer is available (${pkg.version} → ${data.tag_name}) Would you like to download it?`,
+                        })
+                        if (dialog === 0) {
+                            await electron.shell.openExternal(data.html_url);
+                        } else return;
+                    }
                 } else {
                     return console.log('Up to date!' + `(${pkg.version} >= ${data.tag_name})`);
                 }
@@ -125,7 +166,7 @@ export class App {
                 // @ts-ignore
                 handleError(error);
             }
-        }
+        };
         app.on('window-all-closed', app.quit);
     }
 
@@ -160,7 +201,9 @@ export class App {
             }
         });
 
-        this.window.on('ready-to-show', this.window.show);
+        this.window.on('ready-to-show', () => {
+            this.window?.show();
+        });
         this.window.loadFile( '../view/index.html').catch(() => {
             this.window?.loadFile( './view/index.html');
         });

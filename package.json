@@ -1,33 +1,40 @@
 {
   "type": "module",
   "name": "trailblazer",
-  "version": "2.6.1",
+  "version": "2.7.0",
   "description": "Tachyon patcher frontend",
   "main": "./dist/boot.cjs",
   "author": "Zenith Team",
   "license": "MIT",
   "scripts": {
-    "watch": "npm run clean && npx tsc -w",
-    "build": "npm run clean && npx tsc && npx electron ./dist/boot.cjs",
-    "clean": "npm run clean1 && npm run clean2",
-    "clean1": "node -e \"fs.rm('dist',{recursive:true},()=>{});\"",
-    "clean2": "node -e \"fs.rm('out',{recursive:true},()=>{});\"",
-    "start": "electron-forge start",
-    "test": "npx cross-env TRAILBLAZER_DEV=1 npx electronmon ./dist/boot.cjs",
-    "package": "electron-forge package",
-    "make": "electron-forge make"
+    "clean": "node -e \"const fs=require('fs'); ['dist'].forEach(d => fs.rmSync(d, {recursive: true, force: true}));\"",
+    "clean:out": "node -e \"const fs=require('fs'); ['out'].forEach(d => fs.rmSync(d, {recursive: true, force: true}));\"",
+    "build": "npm run clean && npx tsc",
+    "watch": "npx tsc -w",
+    "start": "npm run build && electron-forge start",
+    "dev": "npx cross-env TRAILBLAZER_DEV=1 npx electronmon ./dist/boot.cjs",
+    "package:win": "npm run build && electron-forge make --platform win32 --arch x64",
+    "package:win-arm64": "npm run build && electron-forge make --platform win32 --arch arm64",
+    "package:linux": "npm run build && npx electron-builder --linux AppImage --x64",
+    "package:linux-arm64": "npm run build && npx electron-builder --linux AppImage --arm64",
+    "package:mac-arm": "npm run build && electron-forge package --platform darwin --arch arm64",
+    "package:mac-intel": "npm run build && electron-forge package --platform darwin --arch x64",
+    "package:mac-universal": "npm run build && electron-forge package --platform darwin --arch universal",
+    "package:all": "npm run package:win && npm run package:win-arm64 && npm run package:linux && npm run package:linux-arm64 && npm run package:mac-arm && npm run package:mac-intel"
   },
   "devDependencies": {
-    "@electron-forge/cli": "^6.0.3",
-    "@electron-forge/maker-deb": "^6.0.3",
-    "@electron-forge/maker-rpm": "^6.0.3",
-    "@electron-forge/maker-squirrel": "^6.0.3",
-    "@electron-forge/maker-zip": "^6.0.3",
-    "@rabbitholesyndrome/electron-forge-maker-portable": "^0.1.1",
-    "@types/node": "^18.11.18",
-    "cross-env": "^7.0.3",
-    "electron": "^21.3.0",
-    "electronmon": "^2.0.2"
+    "@electron-forge/cli": "^7.11.1",
+    "@electron-forge/maker-deb": "^7.11.1",
+    "@electron-forge/maker-rpm": "^7.11.1",
+    "@electron-forge/maker-squirrel": "^7.11.1",
+    "@electron-forge/maker-zip": "^7.11.1",
+    "@rabbitholesyndrome/electron-forge-maker-portable": "^0.2.0",
+    "@types/node": "^25.5.0",
+    "cross-env": "^10.1.0",
+    "electron": "^41.1.1",
+    "electron-forge-maker-appimage": "^26.8.1",
+    "electronmon": "^2.0.4",
+    "typescript": "^6.0.2"
   },
   "electronmon": {
     "patterns": [
@@ -36,51 +43,46 @@
     ]
   },
   "dependencies": {
-    "electron-squirrel-startup": "^1.0.0",
-    "node-fetch": "^3.3.0",
-    "tachyon": "github:Zenith-Team/Tachyon"
+    "electron-squirrel-startup": "^1.0.1",
+    "node-fetch": "^3.3.2",
+    "tachyon": "github:Zenith-Team/Tachyon",
+    "chalk": "^5.3.0",
+    "rpxlib": "^0.6.2",
+    "tail": "^2.2.6",
+    "yaml": "^2.3.4",
+    "@foxglove/crc": "^0.0.3"
   },
   "build": {
     "appId": "net.nsmbu.trailblazer",
-    "productName": "Trailblazer"
-  },
-  "config": {
-    "forge": {
-      "packagerConfig": {
-        "icon": "asset/icon"
-      },
-      "makers": [
-        {
-          "name": "@rabbitholesyndrome/electron-forge-maker-portable",
-          "config": {
-            "portable": {
-              "artifactName": "Trailblazer-${version}.exe"
-            }
-          }
-        },
-        {
-          "name": "@electron-forge/maker-zip",
-          "platforms": [
-            "darwin"
-          ]
-        },
-        {
-          "name": "@electron-forge/maker-deb",
-          "config": {
-            "options": {
-              "icon": "asset/icon.png"
-            }
-          }
-        },
-        {
-          "name": "@electron-forge/maker-rpm",
-          "config": {
-            "options": {
-              "icon": "asset/icon.png"
-            }
-          }
-        }
+    "productName": "Trailblazer",
+    "directories": {
+      "output": "out"
+    },
+    "files": [
+      "dist/**/*",
+      "asset/**/*",
+      "view/**/*",
+      "package.json"
+    ],
+    "linux": {
+      "icon": "asset/icon.png",
+      "target": [
+        "AppImage"
       ]
-    }
+    },
+    "win": {
+      "icon": "asset/icon.ico"
+    },
+    "mac": {
+      "icon": "asset/icon.icns"
+    },
+    "asarUnpack": [
+      "node_modules/tachyon/**/*",
+      "node_modules/chalk/**/*",
+      "node_modules/rpxlib/**/*",
+      "node_modules/tail/**/*",
+      "node_modules/yaml/**/*",
+      "node_modules/@foxglove/crc/**/*"
+    ]
   }
 }
